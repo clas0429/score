@@ -16,7 +16,7 @@ body {
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     text-align: center;
     width: 100%;
-    max-width: 600px;
+    max-width: 900px; /* 調整最大寬度以容納更多圖表 */
 }
 
 h1 {
@@ -29,6 +29,12 @@ h2 {
     color: #34495e;
     margin-top: 30px;
     margin-bottom: 20px;
+}
+
+h3 {
+    color: #555;
+    margin-top: 20px;
+    margin-bottom: 15px;
 }
 
 #login-section label {
@@ -101,12 +107,36 @@ table tr:nth-child(even) {
     background-color: #f9f9f9;
 }
 
-.chart-container {
-    width: 100%;
-    max-width: 450px;
-    margin: 30px auto 0 auto;
+/* 圖表畫廊樣式 */
+.chart-gallery {
+    display: flex;
+    flex-wrap: wrap; /* 允許換行 */
+    justify-content: center;
+    gap: 20px; /* 圖表間距 */
+    margin-top: 30px;
+}
+
+.chart-item {
+    flex: 1 1 calc(50% - 20px); /* 在大螢幕上每行兩個，考慮間距 */
+    max-width: calc(50% - 20px);
+    min-width: 300px; /* 最小寬度，防止過度壓縮 */
     background-color: #fefefe;
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    box-sizing: border-box; /* 確保 padding 不增加寬度 */
+}
+
+/* 針對小螢幕設備的響應式調整 */
+@media (max-width: 768px) {
+    .chart-item {
+        flex: 1 1 100%; /* 小螢幕上每行一個圖表 */
+        max-width: 100%;
+    }
+}
+
+.chart-container {
+    position: relative; /* 為了 Chart.js 的響應式 */
+    height: 300px; /* 固定圖表高度 */
+    width: 100%;
 }
