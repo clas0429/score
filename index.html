@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>六和國中學生成績查詢系統</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>六和國中學生成績查詢系統</h1>
+
+        <div id="login-section">
+            <label for="studentId">學號</label>
+            <input type="text" id="studentId" placeholder="請輸入學號 (例如: 123456)">
+            <button id="loginButton">登入</button>
+            <p id="loginMessage" class="message"></p>
+        </div>
+
+        <div id="results-section" style="display: none;">
+            <h2>您的成績</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>科目</th>
+                        <th>成績</th>
+                    </tr>
+                </thead>
+                <tbody id="scoreTableBody">
+                    </tbody>
+            </table>
+            <button id="logoutButton">登出</button>
+
+            <div class="chart-container">
+                <canvas id="scoreRadarChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
