@@ -30,8 +30,14 @@ const loginSection = document.getElementById('login-section');
 const resultsSection = document.getElementById('results-section');
 const scoreTableBody = document.getElementById('scoreTableBody');
 const logoutButton = document.getElementById('logoutButton');
+
 const scoreRadarChartCanvas = document.getElementById('scoreRadarChart');
-let radarChart = null; // 用於儲存 Chart 實例，以便更新或銷毀
+const scoreLineChartCanvas = document.getElementById('scoreLineChart'); // 新增折線圖 canvas
+const scoreBarChartCanvas = document.getElementById('scoreBarChart');   // 新增長條圖 canvas
+
+let radarChart = null; // 用於儲存 Chart 實例
+let lineChart = null;  // 用於儲存 Chart 實例
+let barChart = null;   // 用於儲存 Chart 實例
 
 // 登入功能
 loginButton.addEventListener('click', () => {
@@ -45,7 +51,7 @@ loginButton.addEventListener('click', () => {
         loginSection.style.display = 'none';
         resultsSection.style.display = 'block';
         displayScores(student.scores);
-        drawRadarChart(student.scores);
+        drawAllCharts(student.scores); // 呼叫統一的繪圖函式
     } else {
         // 登入失敗
         loginMessage.textContent = '學號錯誤，請重新輸入。';
@@ -66,10 +72,17 @@ function displayScores(scores) {
     }
 }
 
+// 統一繪製所有圖表
+function drawAllCharts(scores) {
+    drawRadarChart(scores);
+    drawLineChart(scores);
+    drawBarChart(scores);
+}
+
 // 繪製雷達圖
 function drawRadarChart(scores) {
     if (radarChart) {
-        radarChart.destroy(); // 如果圖表已存在，先銷毀它
+        radarChart.destroy();
     }
 
     const subjects = Object.keys(scores);
@@ -82,10 +95,10 @@ function drawRadarChart(scores) {
             datasets: [{
                 label: '科目成績',
                 data: scoreValues,
-                backgroundColor: 'rgba(52, 152, 219, 0.4)', // 藍色半透明填充
-                borderColor: 'rgba(52, 152, 219, 1)', // 藍色邊框
+                backgroundColor: 'rgba(52, 152, 219, 0.4)',
+                borderColor: 'rgba(52, 152, 219, 1)',
                 borderWidth: 2,
-                pointBackgroundColor: 'rgba(41, 128, 185, 1)', // 藍色點
+                pointBackgroundColor: 'rgba(41, 128, 185, 1)',
                 pointBorderColor: '#fff',
                 pointHoverBackgroundColor: '#fff',
                 pointHoverBorderColor: 'rgba(41, 128, 185, 1)'
@@ -96,38 +109,22 @@ function drawRadarChart(scores) {
             maintainAspectRatio: false,
             scales: {
                 r: {
-                    angleLines: {
-                        display: true
-                    },
-                    grid: {
-                        color: 'rgba(200, 200, 200, 0.2)' // 網格線顏色
-                    },
-                    suggestedMin: 0, // 最低分數
-                    suggestedMax: 100, // 最高分數
+                    angleLines: { display: true },
+                    grid: { color: 'rgba(200, 200, 200, 0.2)' },
+                    suggestedMin: 0,
+                    suggestedMax: 100,
                     pointLabels: {
-                        font: {
-                            size: 14 // 科目名稱字體大小
-                        }
+                        font: { size: 14 }
                     },
                     ticks: {
-                        stepSize: 20, // 刻度間距
-                        backdropColor: 'rgba(255, 255, 255, 0.7)', // 刻度背景色
-                        font: {
-                            size: 12 // 刻度數字字體大小
-                        }
+                        stepSize: 20,
+                        backdropColor: 'rgba(255, 255, 255, 0.7)',
+                        font: { size: 12 }
                     }
                 }
             },
             plugins: {
-                legend: {
-                    display: true,
-                    position: 'top',
-                    labels: {
-                        font: {
-                            size: 14
-                        }
-                    }
-                },
+                legend: { display: true, position: 'top', labels: { font: { size: 14 } } },
                 tooltip: {
                     callbacks: {
                         label: function(context) {
@@ -135,19 +132,151 @@ function drawRadarChart(scores) {
                         }
                     }
                 },
-                datalabels: { // 使用 chartjs-plugin-datalabels 顯示分數
+                datalabels: {
                     display: true,
                     color: '#333',
-                    font: {
-                        weight: 'bold'
-                    },
+                    font: { weight: 'bold' },
                     formatter: function(value, context) {
                         return value;
                     }
                 }
             }
         },
-        plugins: [ChartDataLabels] // 註冊 datalabels 插件
+        plugins: [ChartDataLabels]
+    });
+}
+
+// 繪製折線圖 (Line Chart)
+function drawLineChart(scores) {
+    if (lineChart) {
+        lineChart.destroy();
+    }
+
+    const subjects = Object.keys(scores);
+    const scoreValues = Object.values(scores);
+
+    lineChart = new Chart(scoreLineChartCanvas, {
+        type: 'line',
+        data: {
+            labels: subjects,
+            datasets: [{
+                label: '科目成績',
+                data: scoreValues,
+                fill: false, // 不填充線下方區域
+                borderColor: 'rgb(75, 192, 192)', // 青色
+                tension: 0.1, // 線條弧度
+                pointBackgroundColor: 'rgb(75, 192, 192)',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: 'rgb(75, 192, 192)'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    suggestedMin: 0,
+                    suggestedMax: 100,
+                    ticks: {
+                        stepSize: 20
+                    }
+                }
+            },
+            plugins: {
+                legend: { display: true, position: 'top' },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `${context.label}: ${context.raw} 分`;
+                        }
+                    }
+                },
+                datalabels: {
+                    display: true,
+                    color: '#333',
+                    align: 'end', // 讓數字顯示在點的上方
+                    anchor: 'end',
+                    font: { weight: 'bold' },
+                    formatter: function(value, context) {
+                        return value;
+                    }
+                }
+            }
+        },
+        plugins: [ChartDataLabels]
+    });
+}
+
+// 繪製長條圖 (Bar Chart)
+function drawBarChart(scores) {
+    if (barChart) {
+        barChart.destroy();
+    }
+
+    const subjects = Object.keys(scores);
+    const scoreValues = Object.values(scores);
+
+    barChart = new Chart(scoreBarChartCanvas, {
+        type: 'bar',
+        data: {
+            labels: subjects,
+            datasets: [{
+                label: '科目成績',
+                data: scoreValues,
+                backgroundColor: [ // 可以為每個長條設定不同顏色
+                    'rgba(255, 99, 132, 0.6)', // 紅色
+                    'rgba(54, 162, 235, 0.6)', // 藍色
+                    'rgba(255, 206, 86, 0.6)', // 黃色
+                    'rgba(75, 192, 192, 0.6)', // 青色
+                    'rgba(153, 102, 255, 0.6)'  // 紫色
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    suggestedMin: 0,
+                    suggestedMax: 100,
+                    ticks: {
+                        stepSize: 20
+                    }
+                }
+            },
+            plugins: {
+                legend: { display: true, position: 'top' },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `${context.label}: ${context.raw} 分`;
+                        }
+                    }
+                },
+                datalabels: {
+                    display: true,
+                    color: '#333',
+                    anchor: 'end', // 數字顯示在長條上方
+                    align: 'top',
+                    font: { weight: 'bold' },
+                    formatter: function(value, context) {
+                        return value;
+                    }
+                }
+            }
+        },
+        plugins: [ChartDataLabels]
     });
 }
 
@@ -155,9 +284,20 @@ function drawRadarChart(scores) {
 logoutButton.addEventListener('click', () => {
     loginSection.style.display = 'block';
     resultsSection.style.display = 'none';
-    loginMessage.textContent = ''; // 清空訊息
-    studentIdInput.value = ''; // 清空學號輸入
+    loginMessage.textContent = '';
+    studentIdInput.value = '';
+    
+    // 登出時銷毀所有圖表
     if (radarChart) {
-        radarChart.destroy(); // 登出時銷毀圖表
+        radarChart.destroy();
+        radarChart = null;
+    }
+    if (lineChart) {
+        lineChart.destroy();
+        lineChart = null;
+    }
+    if (barChart) {
+        barChart.destroy();
+        barChart = null;
     }
 });
